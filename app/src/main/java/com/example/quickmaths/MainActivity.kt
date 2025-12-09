@@ -77,6 +77,29 @@ fun MainMenuScreen(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun GameScreen(modifier: Modifier = Modifier) {
+    /* TODO: Implemet the game screen. It has a screen at the top that
+        displays calculations to solve and buttons at the bottom for numbers 0-9 and a backspace.
+        There is also a small text box on top of the buttons that reflects user input. Above the
+        calculation there is also a bar that ticks down like a timer for each calculation.
+     */
+}
+
+@Composable
+fun HighScoresScreen(modifier: Modifier = Modifier) {
+    /* TODO: Implement the high score screen. It has a list of high scores for each game type and
+        difficulty rating.
+     */
+}
+
+@Composable
+fun SettingsScreen(modifier: Modifier = Modifier) {
+    /* TODO: Implement the settings screen. It has a game mode selector as well as a difficulty
+        selector. Here the user can also change their username. Maybe also a language selector?
+     */
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
