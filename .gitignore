@@ -1,0 +1,71 @@
+### Android ###
+
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+build/
+captures/
+outputs/
+
+# Gradle files
+.gradle/
+build/
+local.properties
+gradle-app.setting
+gradle-wrapper.jar
+
+# Signed APK / Keystore
+*.jks
+*.keystore
+
+# Log files
+*.log
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+# Android Studio captures
+captures/
+
+# IntelliJ / Android Studio files
+.idea/
+*.iml
+*.iws
+
+# Kotlin/Java specific
+*.kt~ 
+*.swp 
+*.swo
+
+# NDK / CMake
+.externalNativeBuild/
+.cxx/
+
+# Compose compiler artifacts
+**/compose-compiler/
+
+# Google Services (avoid committing API keys accidentally)
+google-services.json
+app/google-services.json
+
+# local gradle settings
+gradle.properties
+
+# macOS junk files
+.DS_Store
+
+# Windows junk
+Thumbs.db
