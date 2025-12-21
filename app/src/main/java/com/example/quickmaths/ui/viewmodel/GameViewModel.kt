@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import com.example.quickmaths.data.SettingsRepository
 import com.example.quickmaths.data.Settings
+import com.example.quickmaths.data.HighScoreRepository
 
 class GameViewModel(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val  highScoreRepository: HighScoreRepository
 ) : ViewModel() {
 
     val settings = settingsRepository.settingsFlow
@@ -27,6 +29,18 @@ class GameViewModel(
 
     private val _gameStarted = MutableStateFlow(false)
     val gameStarted: StateFlow<Boolean> = _gameStarted
+
+    private val _currentNumber = MutableStateFlow(0)
+    val currentNumber: StateFlow<Int> = _currentNumber
+
+    private val _numberToAdd = MutableStateFlow(0)
+    val numberToAdd: StateFlow<Int> = _numberToAdd
+
+    private val _userInput = MutableStateFlow(0)
+    val userInput: StateFlow<Int> = _userInput
+
+    private val _score = MutableStateFlow(0)
+    val score: StateFlow<Int> = _score
 
     fun startTimer() {
         viewModelScope.launch {
@@ -44,5 +58,64 @@ class GameViewModel(
 
     private fun game() {
         val currentSettings = settings.value
+
+        when (currentSettings.gameMode) {
+            "Addition" -> addition(currentSettings.difficultySetting)
+            "Subtraction" -> subtraction(currentSettings.difficultySetting)
+            "Multiplication" -> multiplication(currentSettings.difficultySetting)
+            else -> {
+                return
+            }
+        }
+
+    }
+
+    private fun addition(difficultySetting: Int) {
+
+        while (_gameStarted.value) {
+            if (_currentNumber.value < 10) {
+                _numberToAdd.value = (1..10).random()
+            } else if (_currentNumber.value < 100) {
+                _numberToAdd.value = (1..100).random()
+            } else if (_currentNumber.value < 1000) {
+                _numberToAdd.value = (1..1000).random()
+            } else if (_currentNumber.value < 10000) {
+                _numberToAdd.value = (1..10000).random()
+            } else {
+                _numberToAdd.value = (1..100000).random()
+            }
+
+            val correctNumber = _currentNumber.value + _numberToAdd.value
+
+            while (_userInput.value != correctNumber) {
+
+            }
+            _currentNumber.value = correctNumber
+
+            _score.value++
+        }
+        onGameFinished(_score.value)
+    }
+
+    private fun subtraction(difficultySetting: Int) {
+
+    }
+
+    private fun multiplication(difficultySetting: Int) {
+
+    }
+
+    fun onGameFinished(score: Int) {
+        viewModelScope.launch {
+            highScoreRepository.saveHighScore(score)
+        }
+    }
+
+    fun stopGame() {
+        _gameStarted.value = false
+    }
+
+    fun setUserInput(input: Int) {
+        _userInput.value = input
     }
 }

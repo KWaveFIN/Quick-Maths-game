@@ -27,6 +27,10 @@ fun GameScreen(navController: NavHostController, modifier: Modifier = Modifier, 
 
     val countdown by viewModel.countdown.collectAsState()
     val gameStarted by viewModel.gameStarted.collectAsState()
+    val currentNumber by viewModel.currentNumber.collectAsState()
+    val numberToAdd by viewModel.numberToAdd.collectAsState()
+    val userInput by viewModel.userInput.collectAsState()
+    val score by viewModel.score.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.startTimer()
@@ -47,6 +51,7 @@ fun GameScreen(navController: NavHostController, modifier: Modifier = Modifier, 
                 .padding(16.dp)
                 .size(32.dp)
                 .clickable {
+                    viewModel.stopGame()
                     navController.popBackStack()
                 }
         )
