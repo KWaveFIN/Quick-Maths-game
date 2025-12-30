@@ -12,20 +12,20 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 
 data class Settings(
     val gameMode: String = "Addition",
-    val difficultySetting: Int = 1
+    val difficultySetting: String = "Easy"
 )
 
 class SettingsRepository(private val context: Context) {
 
     companion object {
         private val GAME_MODE = stringPreferencesKey("game_mode")
-        private val DIFFICULTY = intPreferencesKey("difficulty")
+        private val DIFFICULTY = stringPreferencesKey("difficulty")
     }
 
     val settingsFlow: Flow<Settings> = context.dataStore.data.map { prefs ->
         Settings(
             gameMode = prefs[GAME_MODE] ?: "Addition",
-            difficultySetting = prefs[DIFFICULTY] ?: 1
+            difficultySetting = prefs[DIFFICULTY] ?: "Easy"
         )
     }
 
@@ -35,7 +35,7 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun updateDifficulty(level: Int) {
+    suspend fun updateDifficulty(level: String) {
         context.dataStore.edit { prefs ->
             prefs[DIFFICULTY] = level
         }

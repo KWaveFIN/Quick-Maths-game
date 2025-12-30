@@ -2,6 +2,7 @@ package com.example.quickmaths.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,12 +10,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import com.example.quickmaths.data.SettingsRepository
-import com.example.quickmaths.data.Settings
 import com.example.quickmaths.data.HighScoreRepository
+import com.example.quickmaths.data.Settings
+import javax.inject.Inject
 
-class GameViewModel(
+@HiltViewModel
+class GameViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val  highScoreRepository: HighScoreRepository
+    private val highScoreRepository: HighScoreRepository
 ) : ViewModel() {
 
     val settings = settingsRepository.settingsFlow
@@ -70,7 +73,7 @@ class GameViewModel(
 
     }
 
-    private fun addition(difficultySetting: Int) {
+    private fun addition(difficultySetting: String) {
 
         while (_gameStarted.value) {
             if (_currentNumber.value < 10) {
@@ -88,7 +91,7 @@ class GameViewModel(
             val correctNumber = _currentNumber.value + _numberToAdd.value
 
             while (_userInput.value != correctNumber) {
-
+                // TODO: Tick down timer here by difficultySetting
             }
             _currentNumber.value = correctNumber
 
@@ -97,12 +100,36 @@ class GameViewModel(
         onGameFinished(_score.value)
     }
 
-    private fun subtraction(difficultySetting: Int) {
-
+    private fun subtraction(difficultySetting: String) {
+        // TODO
     }
 
-    private fun multiplication(difficultySetting: Int) {
+    private fun multiplication(difficultySetting: String) {
 
+        while (_gameStarted.value) {
+            if (_currentNumber.value < 10) {
+                _numberToAdd.value = (1..10).random()
+            } else if (_currentNumber.value < 100) {
+                _numberToAdd.value = (1..100).random()
+            } else if (_currentNumber.value < 1000) {
+                _numberToAdd.value = (1..1000).random()
+            } else if (_currentNumber.value < 10000) {
+                _numberToAdd.value = (1..10000).random()
+            } else {
+                _numberToAdd.value = (1..100000).random()
+            }
+
+            val correctNumber = _currentNumber.value * _numberToAdd.value
+
+            while (_userInput.value != correctNumber) {
+                // TODO: Tick down timer here by difficultySetting
+            }
+
+            _currentNumber.value = correctNumber
+
+            _score.value++
+        }
+        onGameFinished(_score.value)
     }
 
     fun onGameFinished(score: Int) {
