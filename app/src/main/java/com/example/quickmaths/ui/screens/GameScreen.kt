@@ -1,27 +1,31 @@
 package com.example.quickmaths.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.quickmaths.ui.viewmodel.GameViewModel
 
@@ -34,8 +38,7 @@ fun GameScreen(
 
     val countdown by viewModel.countdown.collectAsStateWithLifecycle()
     val gameStarted by viewModel.gameStarted.collectAsStateWithLifecycle()
-    val currentNumber by viewModel.currentNumber.collectAsStateWithLifecycle()
-    val numberToAdd by viewModel.numberToAdd.collectAsStateWithLifecycle()
+    val calculation by viewModel.calculation.collectAsStateWithLifecycle()
     val userInput by viewModel.userInput.collectAsStateWithLifecycle()
     val score by viewModel.score.collectAsStateWithLifecycle()
 
@@ -43,33 +46,161 @@ fun GameScreen(
         viewModel.startTimer()
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Back button in top corner
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(32.dp)
+                    .align(Alignment.TopStart)
+                    .clickable {
+                        viewModel.stopGame()
+                        navController.popBackStack()
+                    }
+            )
 
-        // Back button in top corner
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
-            tint = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .padding(16.dp)
-                .size(32.dp)
-                .clickable {
-                    viewModel.stopGame()
-                    navController.popBackStack()
+            if (countdown <= 1 && gameStarted) {
+
+                Box(modifier = Modifier.fillMaxSize()) {
+
+                    // Calculation Display (Top)
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.padding(top = 200.dp)
+                        ) {
+                            Text(
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.headlineLarge,
+                                softWrap = true,
+                                text = calculation
+                            )
+                        }
+                    }
+
+                    // NumPad (Bottom)
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // User Input Display
+                        Text(
+                            text = userInput.toString(),
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(bottom = 24.dp)
+                        )
+
+                        // Number Grid
+                        val rows = listOf(
+                            listOf(1, 2, 3),
+                            listOf(4, 5, 6),
+                            listOf(7, 8, 9)
+                        )
+
+                        rows.forEach { row ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            ) {
+                                row.forEach { number ->
+                                    NumPadButton(text = number.toString()) {
+                                        if (userInput.toString().length < 9) {
+                                            viewModel.setUserInput(userInput * 10 + number)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Bottom Row: 0 and Backspace
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Invisible spacer button to keep alignment
+                            Spacer(modifier = Modifier.size(80.dp))
+
+                            NumPadButton(text = "0") {
+                                if (userInput.toString().length < 9) {
+                                    viewModel.setUserInput(userInput * 10)
+                                }
+                            }
+
+                            Button(
+                                onClick = { viewModel.setUserInput(userInput / 10) },
+                                modifier = Modifier.size(80.dp),
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Backspace,
+                                    contentDescription = "Backspace"
+                                )
+                            }
+                        }
+                    }
                 }
-        )
-
-
+            }
+            else if (!gameStarted && countdown < 1) {
+                // Game Over Screen
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontSize = 40.sp,
+                        text = "Game Over!"
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+                    Text(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontSize = 20.sp,
+                        text = "Score: $score"
+                    )
+                }
+            }
+            else {
+                // Countdown Screen
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontSize = 40.sp,
+                        text = "$countdown"
+                    )
+                }
+            }
+        }
     }
-    /* TODO: Implemet the game screen. It has a screen at the top that
-        displays calculations to solve and buttons at the bottom for numbers 0-9 and a backspace.
-        There is also a small text box on top of the buttons that reflects user input. Above the
-        calculation there is also a bar that ticks down like a timer for each calculation.
-        Game should start after a 3 second countdown shown with large numbers in the middle of
-        the screen.
-     */
+}
+
+@Composable
+fun NumPadButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.size(80.dp),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(text = text, style = MaterialTheme.typography.titleLarge)
+    }
 }

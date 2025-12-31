@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
@@ -20,13 +21,6 @@ class GameViewModel @Inject constructor(
     private val highScoreRepository: HighScoreRepository
 ) : ViewModel() {
 
-    val settings = settingsRepository.settingsFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = Settings()
-        )
-
     private val _countdown = MutableStateFlow(3)
     val countdown: StateFlow<Int> = _countdown
 
@@ -38,6 +32,9 @@ class GameViewModel @Inject constructor(
 
     private val _currentNumber = MutableStateFlow(0)
     val currentNumber: StateFlow<Int> = _currentNumber
+
+    private val _calculation = MutableStateFlow("")
+    val calculation: StateFlow<String> = _calculation
 
     private val _numberToAdd = MutableStateFlow(0)
     val numberToAdd: StateFlow<Int> = _numberToAdd
@@ -54,19 +51,20 @@ class GameViewModel @Inject constructor(
             _score.value = 0
             _currentNumber.value = 0
             _userInput.value = 0
+            _calculation.value = ""
 
             for (i in 3 downTo 1) {
                 _countdown.value = i
                 delay(1000)
             }
-
+            _countdown.value = 0
             _gameStarted.value = true
             game()
         }
     }
 
     private suspend fun game() {
-        val currentSettings = settings.value
+        val currentSettings = settingsRepository.settingsFlow.first()
 
         when (currentSettings.gameMode) {
             "Addition" -> addition(currentSettings.difficultySetting)
@@ -80,18 +78,23 @@ class GameViewModel @Inject constructor(
 
     private suspend fun addition(difficultySetting: String) {
 
+        _currentNumber.value = 0
+
         while (_gameStarted.value) {
-            if (_currentNumber.value < 10) {
+            if (_currentNumber.value < 100) {
                 _numberToAdd.value = (1..10).random()
-            } else if (_currentNumber.value < 100) {
-                _numberToAdd.value = (1..100).random()
             } else if (_currentNumber.value < 1000) {
-                _numberToAdd.value = (1..1000).random()
+                _numberToAdd.value = (1..100).random()
             } else if (_currentNumber.value < 10000) {
+                _numberToAdd.value = (1..1000).random()
+            } else if (_currentNumber.value < 100000) {
                 _numberToAdd.value = (1..10000).random()
             } else {
                 _numberToAdd.value = (1..100000).random()
             }
+
+            _calculation.value = "${_currentNumber.value} + ${_numberToAdd.value}"
+
 
             val correctNumber = _currentNumber.value + _numberToAdd.value
 
@@ -142,20 +145,25 @@ class GameViewModel @Inject constructor(
 
     private suspend fun multiplication(difficultySetting: String) {
 
+        _currentNumber.value = 1
+
         while (_gameStarted.value) {
-            if (_currentNumber.value < 10) {
+            if (_currentNumber.value < 100) {
                 _numberToAdd.value = (1..10).random()
-            } else if (_currentNumber.value < 100) {
-                _numberToAdd.value = (1..100).random()
             } else if (_currentNumber.value < 1000) {
-                _numberToAdd.value = (1..1000).random()
+                _numberToAdd.value = (1..100).random()
             } else if (_currentNumber.value < 10000) {
+                _numberToAdd.value = (1..1000).random()
+            } else if (_currentNumber.value < 100000) {
                 _numberToAdd.value = (1..10000).random()
             } else {
                 _numberToAdd.value = (1..100000).random()
             }
 
+            _calculation.value = "${_currentNumber.value} * ${_numberToAdd.value}"
+
             val correctNumber = _currentNumber.value * _numberToAdd.value
+
             val initialTimerValue = when (difficultySetting) {
                 "Easy" -> 20
                 "Normal" -> 10

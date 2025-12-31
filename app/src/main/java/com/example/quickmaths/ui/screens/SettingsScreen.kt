@@ -110,7 +110,7 @@ fun SettingsScreen(
                             },
                                 onClick = {
                                     isDropDownExpandedMode.value = false
-                                    itemPosition.value = index
+                                    itemPosition.intValue = index
                                     viewModel.setGameMode(mode)
                                 })
                         }
@@ -144,7 +144,7 @@ fun SettingsScreen(
                             },
                                 onClick = {
                                     isDropDownExpandedDifficulty.value = false
-                                    itemPosition.value = index
+                                    itemPosition.intValue = index
                                     viewModel.setDifficulty(difficulty)
                                 })
                         }
