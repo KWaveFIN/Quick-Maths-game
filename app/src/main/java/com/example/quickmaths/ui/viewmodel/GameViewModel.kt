@@ -24,8 +24,11 @@ class GameViewModel @Inject constructor(
     private val _countdown = MutableStateFlow(3)
     val countdown: StateFlow<Int> = _countdown
 
-    private val _timer = MutableStateFlow(10)
-    val timer: StateFlow<Int> = _timer
+    private val _timer = MutableStateFlow(10f)
+    val timer: StateFlow<Float> = _timer
+
+    private val _maxTimer = MutableStateFlow(10f)
+    val maxTimer: StateFlow<Float> = _maxTimer
 
     private val _gameStarted = MutableStateFlow(false)
     val gameStarted: StateFlow<Boolean> = _gameStarted
@@ -104,30 +107,26 @@ class GameViewModel @Inject constructor(
                 "Hard" -> 5
                 else -> 10
             }
-            _timer.value = initialTimerValue
+            _timer.value = initialTimerValue.toFloat()
+            _maxTimer.value = initialTimerValue.toFloat()
 
             _userInput.value = 0
 
             // Wait loop: checks for answer every 10ms
             val startTime = System.currentTimeMillis()
-            var secondsPassed = 0
+            val initialDurationMillis = initialTimerValue * 1000L
             
             while (_userInput.value != correctNumber && _gameStarted.value) {
                 delay(10)
                 
-                // Calculate elapsed time in seconds
                 val elapsedMillis = System.currentTimeMillis() - startTime
-                val currentSeconds = (elapsedMillis / 1000).toInt()
+                val remainingMillis = initialDurationMillis - elapsedMillis
                 
-                if (currentSeconds > secondsPassed) {
-                    val diff = currentSeconds - secondsPassed
-                    _timer.value -= diff
-                    secondsPassed = currentSeconds
-                    
-                    if (_timer.value <= 0) {
-                        _timer.value = 0
-                        _gameStarted.value = false
-                    }
+                _timer.value = (remainingMillis / 1000f).coerceAtLeast(0f)
+                
+                if (remainingMillis <= 0) {
+                    _gameStarted.value = false
+                    _timer.value = 0f
                 }
             }
 
@@ -141,6 +140,7 @@ class GameViewModel @Inject constructor(
 
     private fun subtraction(difficultySetting: String) {
         // TODO
+        stopGame()
     }
 
     private suspend fun multiplication(difficultySetting: String) {
@@ -170,30 +170,26 @@ class GameViewModel @Inject constructor(
                 "Hard" -> 5
                 else -> 10
             }
-            _timer.value = initialTimerValue
+            _timer.value = initialTimerValue.toFloat()
+            _maxTimer.value = initialTimerValue.toFloat()
 
             _userInput.value = 0
 
              // Wait loop: checks for answer every 10ms
             val startTime = System.currentTimeMillis()
-            var secondsPassed = 0
+            val initialDurationMillis = initialTimerValue * 1000L
 
             while (_userInput.value != correctNumber && _gameStarted.value) {
                 delay(10)
 
-                // Calculate elapsed time in seconds
                 val elapsedMillis = System.currentTimeMillis() - startTime
-                val currentSeconds = (elapsedMillis / 1000).toInt()
+                val remainingMillis = initialDurationMillis - elapsedMillis
 
-                if (currentSeconds > secondsPassed) {
-                    val diff = currentSeconds - secondsPassed
-                    _timer.value -= diff
-                    secondsPassed = currentSeconds
+                _timer.value = (remainingMillis / 1000f).coerceAtLeast(0f)
 
-                    if (_timer.value <= 0) {
-                        _timer.value = 0
-                        _gameStarted.value = false
-                    }
+                if (remainingMillis <= 0) {
+                    _gameStarted.value = false
+                    _timer.value = 0f
                 }
             }
              

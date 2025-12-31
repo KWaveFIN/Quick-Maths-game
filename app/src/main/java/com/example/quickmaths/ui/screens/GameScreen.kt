@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,6 +44,9 @@ fun GameScreen(
     val calculation by viewModel.calculation.collectAsStateWithLifecycle()
     val userInput by viewModel.userInput.collectAsStateWithLifecycle()
     val score by viewModel.score.collectAsStateWithLifecycle()
+    val timer by viewModel.timer.collectAsStateWithLifecycle()
+    val maxTimer by viewModel.maxTimer.collectAsStateWithLifecycle()
+
 
     LaunchedEffect(Unit) {
         viewModel.startTimer()
@@ -77,9 +83,22 @@ fun GameScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top
                     ) {
+                        // Timer Progress Bar
+                        if (maxTimer > 0) {
+                            LinearProgressIndicator(
+                                progress = { timer / maxTimer },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 64.dp, start = 32.dp, end = 32.dp)
+                                    .height(8.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+
                         Box(
                             contentAlignment = Alignment.Center,
-                            modifier = Modifier.padding(top = 200.dp)
+                            modifier = Modifier.padding(top = 120.dp) // Adjusted padding to make room for progress bar
                         ) {
                             Text(
                                 color = MaterialTheme.colorScheme.onBackground,
