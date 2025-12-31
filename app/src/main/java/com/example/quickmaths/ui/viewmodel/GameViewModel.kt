@@ -30,6 +30,9 @@ class GameViewModel @Inject constructor(
     private val _countdown = MutableStateFlow(3)
     val countdown: StateFlow<Int> = _countdown
 
+    private val _timer = MutableStateFlow(10)
+    val timer: StateFlow<Int> = _timer
+
     private val _gameStarted = MutableStateFlow(false)
     val gameStarted: StateFlow<Boolean> = _gameStarted
 
@@ -48,6 +51,9 @@ class GameViewModel @Inject constructor(
     fun startTimer() {
         viewModelScope.launch {
             _gameStarted.value = false
+            _score.value = 0
+            _currentNumber.value = 0
+            _userInput.value = 0
 
             for (i in 3 downTo 1) {
                 _countdown.value = i
@@ -59,7 +65,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    private fun game() {
+    private suspend fun game() {
         val currentSettings = settings.value
 
         when (currentSettings.gameMode) {
@@ -70,10 +76,9 @@ class GameViewModel @Inject constructor(
                 return
             }
         }
-
     }
 
-    private fun addition(difficultySetting: String) {
+    private suspend fun addition(difficultySetting: String) {
 
         while (_gameStarted.value) {
             if (_currentNumber.value < 10) {
@@ -90,11 +95,42 @@ class GameViewModel @Inject constructor(
 
             val correctNumber = _currentNumber.value + _numberToAdd.value
 
-            while (_userInput.value != correctNumber) {
-                // TODO: Tick down timer here by difficultySetting
+            val initialTimerValue = when (difficultySetting) {
+                "Easy" -> 20
+                "Normal" -> 10
+                "Hard" -> 5
+                else -> 10
             }
-            _currentNumber.value = correctNumber
+            _timer.value = initialTimerValue
 
+            _userInput.value = 0
+
+            // Wait loop: checks for answer every 10ms
+            val startTime = System.currentTimeMillis()
+            var secondsPassed = 0
+            
+            while (_userInput.value != correctNumber && _gameStarted.value) {
+                delay(10)
+                
+                // Calculate elapsed time in seconds
+                val elapsedMillis = System.currentTimeMillis() - startTime
+                val currentSeconds = (elapsedMillis / 1000).toInt()
+                
+                if (currentSeconds > secondsPassed) {
+                    val diff = currentSeconds - secondsPassed
+                    _timer.value -= diff
+                    secondsPassed = currentSeconds
+                    
+                    if (_timer.value <= 0) {
+                        _timer.value = 0
+                        _gameStarted.value = false
+                    }
+                }
+            }
+
+            if (!_gameStarted.value) break
+
+            _currentNumber.value = correctNumber
             _score.value++
         }
         onGameFinished(_score.value)
@@ -104,7 +140,7 @@ class GameViewModel @Inject constructor(
         // TODO
     }
 
-    private fun multiplication(difficultySetting: String) {
+    private suspend fun multiplication(difficultySetting: String) {
 
         while (_gameStarted.value) {
             if (_currentNumber.value < 10) {
@@ -120,13 +156,42 @@ class GameViewModel @Inject constructor(
             }
 
             val correctNumber = _currentNumber.value * _numberToAdd.value
-
-            while (_userInput.value != correctNumber) {
-                // TODO: Tick down timer here by difficultySetting
+            val initialTimerValue = when (difficultySetting) {
+                "Easy" -> 20
+                "Normal" -> 10
+                "Hard" -> 5
+                else -> 10
             }
+            _timer.value = initialTimerValue
+
+            _userInput.value = 0
+
+             // Wait loop: checks for answer every 10ms
+            val startTime = System.currentTimeMillis()
+            var secondsPassed = 0
+
+            while (_userInput.value != correctNumber && _gameStarted.value) {
+                delay(10)
+
+                // Calculate elapsed time in seconds
+                val elapsedMillis = System.currentTimeMillis() - startTime
+                val currentSeconds = (elapsedMillis / 1000).toInt()
+
+                if (currentSeconds > secondsPassed) {
+                    val diff = currentSeconds - secondsPassed
+                    _timer.value -= diff
+                    secondsPassed = currentSeconds
+
+                    if (_timer.value <= 0) {
+                        _timer.value = 0
+                        _gameStarted.value = false
+                    }
+                }
+            }
+             
+             if (!_gameStarted.value) break
 
             _currentNumber.value = correctNumber
-
             _score.value++
         }
         onGameFinished(_score.value)
@@ -143,6 +208,8 @@ class GameViewModel @Inject constructor(
     }
 
     fun setUserInput(input: Int) {
-        _userInput.value = input
+        if (_gameStarted.value) {
+            _userInput.value = input
+        }
     }
 }
