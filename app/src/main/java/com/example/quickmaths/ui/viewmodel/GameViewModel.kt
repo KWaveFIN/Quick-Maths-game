@@ -7,12 +7,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import com.example.quickmaths.data.SettingsRepository
 import com.example.quickmaths.data.HighScoreRepository
-import com.example.quickmaths.data.Settings
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,8 +68,8 @@ class GameViewModel @Inject constructor(
 
         when (currentSettings.gameMode) {
             "Addition" -> addition(currentSettings.difficultySetting)
-            "Subtraction" -> subtraction(currentSettings.difficultySetting)
             "Multiplication" -> multiplication(currentSettings.difficultySetting)
+            "Mixed" -> mixed(currentSettings.difficultySetting)
             else -> {
                 return
             }
@@ -138,26 +135,21 @@ class GameViewModel @Inject constructor(
         onGameFinished(_score.value)
     }
 
-    private fun subtraction(difficultySetting: String) {
-        // TODO
-        stopGame()
-    }
-
     private suspend fun multiplication(difficultySetting: String) {
 
         _currentNumber.value = 1
 
         while (_gameStarted.value) {
-            if (_currentNumber.value < 100) {
+            if (_currentNumber.value < 1000) {
                 _numberToAdd.value = (1..10).random()
-            } else if (_currentNumber.value < 1000) {
-                _numberToAdd.value = (1..100).random()
             } else if (_currentNumber.value < 10000) {
-                _numberToAdd.value = (1..1000).random()
+                _numberToAdd.value = (1..100).random()
             } else if (_currentNumber.value < 100000) {
+                _numberToAdd.value = (1..1000).random()
+            } else if (_currentNumber.value < 1000000) {
                 _numberToAdd.value = (1..10000).random()
             } else {
-                _numberToAdd.value = (1..100000).random()
+                _numberToAdd.value = (1..1000000).random()
             }
 
             _calculation.value = "${_currentNumber.value} * ${_numberToAdd.value}"
@@ -201,9 +193,15 @@ class GameViewModel @Inject constructor(
         onGameFinished(_score.value)
     }
 
+    private fun mixed(difficultySetting: String) {
+        // TODO
+        stopGame()
+    }
+
     fun onGameFinished(score: Int) {
         viewModelScope.launch {
-            highScoreRepository.saveHighScore(score)
+            val currentSettings = settingsRepository.settingsFlow.first()
+            highScoreRepository.saveHighScore(score, currentSettings.gameMode, currentSettings.difficultySetting)
         }
     }
 

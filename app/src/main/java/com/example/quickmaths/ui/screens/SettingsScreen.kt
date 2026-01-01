@@ -53,7 +53,7 @@ fun SettingsScreen(
         mutableIntStateOf(0)
     }
 
-    val gameModes = listOf("Addition", "Subtraction", "Multiplication")
+    val gameModes = listOf("Addition","Multiplication", "Mixed")
 
     val difficulties = listOf("Easy", "Normal", "Hard")
 
