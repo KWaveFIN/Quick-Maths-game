@@ -1,18 +1,25 @@
 package com.example.quickmaths
 
-import com.example.quickmaths.ui.screens.*
-
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.quickmaths.ui.theme.QuickMathsTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.quickmaths.ui.screens.GameScreen
+import com.example.quickmaths.ui.screens.HighScoresScreen
+import com.example.quickmaths.ui.screens.MainMenuScreen
+import com.example.quickmaths.ui.screens.SettingsScreen
+import com.example.quickmaths.ui.theme.QuickMathsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,19 +29,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             QuickMathsTheme {
-                val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "main_menu") {
-                    composable("main_menu") {
-                        MainMenuScreen(navController = navController)
-                    }
-                    composable("game_screen") {
-                        GameScreen(navController = navController)
-                    }
-                    composable("high_score_screen") {
-                        HighScoresScreen(navController = navController)
-                    }
-                    composable("settings_screen") {
-                        SettingsScreen(navController = navController)
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = "main_menu",
+                        modifier = Modifier.safeDrawingPadding()
+                    ) {
+                        composable("main_menu") {
+                            MainMenuScreen(navController = navController)
+                        }
+                        composable("game_screen") {
+                            GameScreen(navController = navController)
+                        }
+                        composable("high_score_screen") {
+                            HighScoresScreen(navController = navController)
+                        }
+                        composable("settings_screen") {
+                            SettingsScreen(navController = navController)
+                        }
                     }
                 }
             }
