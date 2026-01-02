@@ -34,9 +34,9 @@ class HighScoreRepository(private val context: Context) {
         private val MULTIPLICATION_EASY = intPreferencesKey("multiplication_easy")
         private val MULTIPLICATION_NORMAL = intPreferencesKey("multiplication_normal")
         private val MULTIPLICATION_HARD = intPreferencesKey("multiplication_hard")
-        private val MIX_EASY = intPreferencesKey("mix_easy")
-        private val MIX_NORMAL = intPreferencesKey("mix_normal")
-        private val MIX_HARD = intPreferencesKey("mix_hard")
+        private val MIX_EASY = intPreferencesKey("mixed_easy")
+        private val MIX_NORMAL = intPreferencesKey("mixed_normal")
+        private val MIX_HARD = intPreferencesKey("mixed_hard")
         private val SELECTED_MODE = stringPreferencesKey("selected_mode")
     }
 

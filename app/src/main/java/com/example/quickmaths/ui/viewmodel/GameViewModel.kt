@@ -99,10 +99,10 @@ class GameViewModel @Inject constructor(
             val correctNumber = _currentNumber.value + _numberToAdd.value
 
             val initialTimerValue = when (difficultySetting) {
-                "Easy" -> 20
-                "Normal" -> 10
-                "Hard" -> 5
-                else -> 10
+                "Easy" -> 30
+                "Normal" -> 20
+                "Hard" -> 10
+                else -> 20
             }
             _timer.value = initialTimerValue.toFloat()
             _maxTimer.value = initialTimerValue.toFloat()
@@ -157,10 +157,10 @@ class GameViewModel @Inject constructor(
             val correctNumber = _currentNumber.value * _numberToAdd.value
 
             val initialTimerValue = when (difficultySetting) {
-                "Easy" -> 20
-                "Normal" -> 10
-                "Hard" -> 5
-                else -> 10
+                "Easy" -> 30
+                "Normal" -> 20
+                "Hard" -> 10
+                else -> 20
             }
             _timer.value = initialTimerValue.toFloat()
             _maxTimer.value = initialTimerValue.toFloat()
@@ -193,9 +193,69 @@ class GameViewModel @Inject constructor(
         onGameFinished(_score.value)
     }
 
-    private fun mixed(difficultySetting: String) {
-        // TODO
-        stopGame()
+    private suspend fun mixed(difficultySetting: String) {
+
+        _currentNumber.value = 1
+
+        while (_gameStarted.value) {
+            if (_currentNumber.value < 1000) {
+                _numberToAdd.value = (1..10).random()
+            } else if (_currentNumber.value < 10000) {
+                _numberToAdd.value = (1..100).random()
+            } else if (_currentNumber.value < 100000) {
+                _numberToAdd.value = (1..1000).random()
+            } else if (_currentNumber.value < 1000000) {
+                _numberToAdd.value = (1..10000).random()
+            } else {
+                _numberToAdd.value = (1..1000000).random()
+            }
+
+            val operation = (0..1).random()
+
+            val correctNumber: Int
+
+            if (operation == 0) {
+                _calculation.value = "${_currentNumber.value} + ${_numberToAdd.value}"
+                correctNumber = _currentNumber.value + _numberToAdd.value
+            } else {
+                _calculation.value = "${_currentNumber.value} * ${_numberToAdd.value}"
+                correctNumber = _currentNumber.value * _numberToAdd.value
+            }
+
+            val initialTimerValue = when (difficultySetting) {
+                "Easy" -> 30
+                "Normal" -> 20
+                "Hard" -> 10
+                else -> 20
+            }
+            _timer.value = initialTimerValue.toFloat()
+            _maxTimer.value = initialTimerValue.toFloat()
+
+            _userInput.value = 0
+
+            // Wait loop: checks for answer every 10ms
+            val startTime = System.currentTimeMillis()
+            val initialDurationMillis = initialTimerValue * 1000L
+
+            while (_userInput.value != correctNumber && _gameStarted.value) {
+                delay(10)
+
+                val elapsedMillis = System.currentTimeMillis() - startTime
+                val remainingMillis = initialDurationMillis - elapsedMillis
+
+                _timer.value = (remainingMillis / 1000f).coerceAtLeast(0f)
+
+                if (remainingMillis <= 0) {
+                    _gameStarted.value = false
+                    _timer.value = 0f
+                }
+            }
+            if (!_gameStarted.value) break
+
+            _currentNumber.value = correctNumber
+            _score.value++
+        }
+        onGameFinished(_score.value)
     }
 
     fun onGameFinished(score: Int) {
