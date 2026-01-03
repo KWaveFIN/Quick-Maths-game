@@ -98,7 +98,7 @@ fun GameScreen(
 
                         Box(
                             contentAlignment = Alignment.Center,
-                            modifier = Modifier.padding(top = 120.dp) // Adjusted padding to make room for progress bar
+                            modifier = Modifier.padding(top = 120.dp)
                         ) {
                             Text(
                                 color = MaterialTheme.colorScheme.onBackground,
@@ -150,7 +150,6 @@ fun GameScreen(
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            // Invisible spacer button to keep alignment
                             Spacer(modifier = Modifier.size(80.dp))
 
                             NumPadButton(text = "0") {
