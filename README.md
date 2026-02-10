@@ -1,6 +1,11 @@
 # Quick-Maths-game
 A simple math game made with Kotlin using Jetpack Compose.
 
+# Structure and how to run
+The code has two settings repositories that save high scores and difficulty settings. Each screen has a view model file and a screen file. 
+The screen file contains the UI components and the view model contains the functionality. Spreading these out makes it simple to add new features and keep track of the code.
+The code can be run in the Android studio emulator or you can choose to compile a runnable APK for Android.
+
 # Functionality
 
 - 3 game modes: addition, multiplication, mixed
